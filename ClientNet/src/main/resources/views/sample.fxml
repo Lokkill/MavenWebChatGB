@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.sample.controllers.Controller">
+
+    <top>
+        <MenuBar BorderPane.alignment="CENTER">
+            <menus>
+                <Menu mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Close" />
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Edit">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Delete" />
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="About" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+    <bottom>
+        <BorderPane prefHeight="39.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+            <right>
+                <Button fx:id="btnSend" mnemonicParsing="false" onAction="#sendMessage" prefHeight="37.0" prefWidth="200.0" text="Отправить" BorderPane.alignment="CENTER">
+                    <BorderPane.margin>
+                        <Insets bottom="2.0" left="2.0" right="2.0" />
+                    </BorderPane.margin>
+                </Button>
+            </right>
+            <center>
+                <TextField fx:id="textField" onAction="#sendMessage" prefHeight="39.0" prefWidth="395.0" BorderPane.alignment="CENTER">
+                    <BorderPane.margin>
+                        <Insets bottom="2.0" left="2.0" />
+                    </BorderPane.margin>
+                </TextField>
+            </center>
+        </BorderPane>
+    </bottom>
+    <right>
+        <ListView fx:id="listContact" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <BorderPane.margin>
+                <Insets bottom="2.0" right="2.0" top="2.0" />
+            </BorderPane.margin>
+        </ListView>
+    </right>
+   <center>
+      <TextArea fx:id="txt_chat" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+   </center>
+</BorderPane>
