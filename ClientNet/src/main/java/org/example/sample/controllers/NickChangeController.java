@@ -37,9 +37,6 @@ public class NickChangeController {
         this.netClient = netClient;
     }
 
-    //public void setNetwork(Network network) {
-//        this.network = network;
-//    }
 
     @FXML
     public void onOk(){

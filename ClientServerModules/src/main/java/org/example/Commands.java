@@ -55,7 +55,7 @@ public class Commands<T> implements Serializable {
 
     public static Commands changeNicknameCommand(String oldNick, String newNick){
         Commands commands = new Commands();
-        commands.type = CommandsType.AUTH;
+        commands.type = CommandsType.CHANGE_NICK;
         commands.data = new ChangeNickCmd(oldNick, newNick);
         return commands;
     }
