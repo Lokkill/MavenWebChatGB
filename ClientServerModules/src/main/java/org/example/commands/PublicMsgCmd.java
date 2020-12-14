@@ -14,4 +14,8 @@ public class PublicMsgCmd implements Serializable {
         this.sender = sender;
         this.message = message;
     }
+
+    public String getMessage() {
+        return message;
+    }
 }
