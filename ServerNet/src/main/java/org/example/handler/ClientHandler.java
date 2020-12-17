@@ -62,7 +62,7 @@ public class ClientHandler {
             }
     }
 
-    private boolean processAuth(Commands command) throws IOException {
+    private boolean processAuth(Commands command) {
         AuthCmd cmdData = (AuthCmd) command.getData();
         String login = cmdData.getLogin();
         String password = cmdData.getPassword();
@@ -93,7 +93,7 @@ public class ClientHandler {
             if (commands == null){
                 continue;
             }
-
+            System.out.println(commands.getType());
             switch (commands.getType()){
                 case END:
                     return;
@@ -126,9 +126,20 @@ public class ClientHandler {
                     UpdateListClientsCmd updateListClientsCmd = (UpdateListClientsCmd) commands.getData();
                     myServer.updateListUsers();
                     break;
+                case ADD_ACTIVE_USER:
+                    AddActiveUserCmd addActiveUserCmd = (AddActiveUserCmd) commands.getData();
+                    myServer.addUser(addActiveUserCmd.getLogin(), addActiveUserCmd.getPassword());
+                    break;
                 case GET_USERS:
                     List<User> users = getUsers();
                     sendMessage(Commands.sendUsersCommand(users));
+                    break;
+                case DELETE_ACTIVE_USER:
+                    DeleteActiveUserCmd deleteActiveUserCmd = (DeleteActiveUserCmd) commands.getData();
+                    myServer.deleteActiveUser(deleteActiveUserCmd.getNick());
+                    List<User> usersList = getUsers();
+                    sendMessage(Commands.sendUsersCommand(usersList));
+                    break;
                 default:
                     String error = "Неизвестная комманда " + commands.getType();
                     System.err.println(error);
@@ -155,6 +166,7 @@ public class ClientHandler {
 
     public void sendMessage(Commands commands){
         try {
+            System.out.println(commands.getData());
             out.writeObject(commands);
         } catch (Exception e){
             e.printStackTrace();

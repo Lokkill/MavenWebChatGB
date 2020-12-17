@@ -31,6 +31,12 @@ public class Commands<T> implements Serializable {
         commands.data = new AddUserCmd(nick, login, password);
         return commands;
     }
+    public static Commands deleteActiveUserCommand(String nick){
+        Commands commands = new Commands();
+        commands.type = CommandsType.DELETE_ACTIVE_USER;
+        commands.data = new DeleteActiveUserCmd(nick);
+        return commands;
+    }
 
     public static Commands getUsersCommand(){
         Commands commands = new Commands();
@@ -43,6 +49,13 @@ public class Commands<T> implements Serializable {
         Commands commands = new Commands();
         commands.type = CommandsType.SEND_USERS;
         commands.data = new SendUsersCmd(users);
+        return commands;
+    }
+
+    public static Commands addActiveUserCommand(String login, String password){
+        Commands commands = new Commands();
+        commands.type = CommandsType.ADD_ACTIVE_USER;
+        commands.data = new AddActiveUserCmd(login, password);
         return commands;
     }
 
