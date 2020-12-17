@@ -26,6 +26,14 @@
         <module>ClientServerModules</module>
         <module>DataBase</module>
     </modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>DataBase</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
     <properties>
         <maven.compiler.sourse>1.8</maven.compiler.sourse>
         <maven.compiler.target>1.8</maven.compiler.target>

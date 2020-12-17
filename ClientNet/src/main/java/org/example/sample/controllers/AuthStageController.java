@@ -1,12 +1,17 @@
 package org.example.sample.controllers;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import org.example.DBConnection;
+import org.example.SQLCommands;
 import org.example.sample.NetClient;
 import org.example.sample.models.Network;
 
 public class AuthStageController {
+    @FXML
+    public Button btn_registration;
 
     @FXML
     public TextField txt_login_field;
@@ -33,6 +38,10 @@ public class AuthStageController {
         } else {
             NetClient.showErrorMessage("Auth error", "");
         }
+    }
+
+    public void onRegistration() throws Exception {
+        netClient.openRegistrationStage();
     }
 
     public void setNetwork(Network network) {

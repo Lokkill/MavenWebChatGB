@@ -14,4 +14,8 @@ public class PrivateMsgCmd implements Serializable {
         this.receiver = sernder;
         this.message = message;
     }
+
+    public String getMessage() {
+        return message;
+    }
 }
