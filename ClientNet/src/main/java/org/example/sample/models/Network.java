@@ -6,6 +6,7 @@ import org.example.DBConnection;
 import org.example.commands.*;
 import org.example.data.User;
 import org.example.sample.controllers.Controller;
+import org.example.sample.log.ChatingHistory;
 
 import java.io.*;
 import java.net.Socket;
@@ -61,8 +62,11 @@ public class Network {
         }
     }
 
-    public void close() {
+    public void close(Controller controller) {
         try {
+            sendMessage(Commands.deleteActiveUserCommand(userName));
+            ChatingHistory ch = new ChatingHistory();
+            ch.saveToFile(userName, controller.getChatingHistory());
             socket.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -79,7 +83,7 @@ public class Network {
                         if (commands.getType() == null) {
                             continue;
                         }
-
+                        System.out.println(commands.getData());
                         switch (commands.getType()) {
                             case INFO_MSG:
                                 InfoCmd infoCmd = (InfoCmd) commands.getData();
@@ -97,12 +101,6 @@ public class Network {
                                     controller.showError("Ошибка сервера", errorMsg);
                                 });
                                 break;
-//                            case UPDATE_USERS:
-//                                UpdateUsersCmd updateUsersCmd = (UpdateUsersCmd) commands.getData();
-//                                Platform.runLater(() -> {
-//                                    controller.updateUsers(updateUsersCmd.getUsers());
-//                                });
-//                                break;
                             case SEND_USERS:
                                 SendUsersCmd sendUsersCmd = (SendUsersCmd) commands.getData();
                                 List<User> users = sendUsersCmd.getUsers();

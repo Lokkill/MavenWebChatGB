@@ -19,6 +19,7 @@ public class MyServer {
     private DBConnection dbConnection;
 
     public List<ClientHandler> clients = new ArrayList<>();
+    public static List<User> users = new ArrayList<>();
     private AuthService authService;
     private ServerSocket server;
 
@@ -41,6 +42,7 @@ public class MyServer {
                 Socket socket = server.accept();
                 System.out.println("Client connected!");
                 new ClientHandler(this, socket);
+
             }
         }catch (Exception e){
             System.out.println("Server error");
@@ -50,6 +52,16 @@ public class MyServer {
                 dbConnection.disconnect();
             }
         }
+    }
+
+    public void addUser(String login, String password){
+        try {
+            User user = dbConnection.getUser(login, password);
+            users.add(user);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
     }
 
     public void createNewUser(String nick, String login, String password){
@@ -72,8 +84,16 @@ public class MyServer {
         }
     }
 
+    public void deleteActiveUser(String nick){
+        for (User o : users){
+            if (o.getNick().equals(nick)){
+                users.remove(o);
+            }
+        }
+    }
+
     public List<User> getUsersDataBase(){
-        List<User> users = dbConnection.getAllUsers();
+        //List<User> users = dbConnection.getAllUsers();
         return users;
     }
 
@@ -84,6 +104,12 @@ public class MyServer {
             }
         }
         return false;
+    }
+
+    public synchronized void sendActiveUsers(){
+//        for (ClientHandler o : clients){
+            clients.get(0).sendMessage(Commands.sendUsersCommand(users));
+
     }
 
     public synchronized void broadcastMessage(ClientHandler sender, Commands commands){

@@ -1,8 +1,9 @@
 package org.example.data;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class User {
+public class User implements Serializable {
     private String login;
     private String pass;
     private String nick;

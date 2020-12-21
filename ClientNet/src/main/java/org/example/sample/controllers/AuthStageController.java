@@ -4,10 +4,13 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import org.example.Commands;
 import org.example.DBConnection;
 import org.example.SQLCommands;
 import org.example.sample.NetClient;
 import org.example.sample.models.Network;
+
+import java.io.IOException;
 
 public class AuthStageController {
     @FXML
@@ -22,7 +25,7 @@ public class AuthStageController {
     private NetClient netClient;
 
     @FXML
-    public void checkAuth(){
+    public void checkAuth() throws IOException {
         String login = txt_login_field.getText();
         String password = txt_pass_field.getText();
 
@@ -34,6 +37,7 @@ public class AuthStageController {
 
         String authErrMsg = network.sendAuthCommand(login, password);
         if (authErrMsg == null){
+            network.sendMessage(Commands.addActiveUserCommand(login, password));
             netClient.openChat();
         } else {
             NetClient.showErrorMessage("Auth error", "");

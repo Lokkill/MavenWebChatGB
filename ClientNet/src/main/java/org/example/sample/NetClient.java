@@ -16,6 +16,7 @@ import org.example.sample.controllers.NickChangeController;
 import org.example.sample.controllers.RegistrationStage;
 import org.example.sample.models.Network;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,10 +46,7 @@ public class NetClient extends Application {
         openAuthStage(primaryStage);
         openMessangerStage(primaryStage);
 
-        if (!network.connection()){
-            showErrorMessage("", "Server connection error");
-        }
-        primaryStage.setOnCloseRequest(event -> network.close());
+        primaryStage.setOnCloseRequest(event -> network.close(controller));
 
     }
 
@@ -56,12 +54,11 @@ public class NetClient extends Application {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(NetClient.class.getResource("/views/sample.fxml"));
         Parent root = loader.load();
-        primaryStage.setTitle("Messenger");
+        primaryStage.setTitle("Messenger: " + network.getUserName());
         primaryStage.setScene(new Scene(root, 600, 400));
         controller = loader.getController();
         controller.setNetwork(network);
         controller.setNetClient(this);
-        network.sendMessage(Commands.getUsersCommand());
     }
 
     private void openAuthStage(Stage primaryStage) throws java.io.IOException {
@@ -107,12 +104,14 @@ public class NetClient extends Application {
         alert.showAndWait();
     }
 
-    public void openChat(){
+    public void openChat() throws IOException {
         isActiveThread = true;
         authStage.close();
         primaryStage.show();
         primaryStage.setTitle(network.getUserName());
         network.waitMessage(controller);
+        network.sendMessage(Commands.getUsersCommand());
+        controller.loadChatingHistory(network.getUserName());
     }
 
     public static void main(String[] args) {

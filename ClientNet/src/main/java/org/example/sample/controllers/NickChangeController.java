@@ -42,6 +42,7 @@ public class NickChangeController {
     public void onOk(){
         try {
             network.sendMessage(Commands.changeNicknameCommand(network.getUserName(), txt_newNick.getText()));
+            netClient.closeChangeNickStage();
         } catch (IOException e) {
             e.printStackTrace();
         }
