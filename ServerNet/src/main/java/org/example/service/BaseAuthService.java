@@ -3,9 +3,7 @@ package org.example.service;
 import org.example.DBConnection;
 import org.example.data.User;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class BaseAuthService implements AuthService{

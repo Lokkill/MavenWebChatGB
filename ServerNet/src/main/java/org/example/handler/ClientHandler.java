@@ -10,6 +10,7 @@ import org.example.*;
 import org.example.service.AuthService;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 public class ClientHandler {
     private MyServer myServer;
@@ -22,14 +23,14 @@ public class ClientHandler {
         return userName;
     }
 
-    public ClientHandler(MyServer myServer, Socket socket){
+    public ClientHandler(MyServer myServer, Socket socket, ExecutorService executorService){
         try {
             this.myServer = myServer;
             this.socket = socket;
             this.in = new ObjectInputStream(socket.getInputStream());
             this.out = new ObjectOutputStream(socket.getOutputStream());
             this.userName = "";
-            new Thread(new Runnable() {
+            executorService.execute(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -41,7 +42,7 @@ public class ClientHandler {
                         closeConnection();
                     }
                 }
-            }).start();
+            });
         } catch (Exception e){
             sendMessage(Commands.errorCommand("Ошибка авторизации пользователя"));
             //throw new RuntimeException("Client connection error");

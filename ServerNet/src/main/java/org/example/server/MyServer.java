@@ -13,6 +13,9 @@ import java.net.Socket;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MyServer {
     private final int PORT = 8189;
@@ -22,6 +25,7 @@ public class MyServer {
     public static List<User> users = new ArrayList<>();
     private AuthService authService;
     private ServerSocket server;
+    private static ExecutorService executorService;
 
     public AuthService getAuthService(){
         return authService;
@@ -32,7 +36,7 @@ public class MyServer {
         authService = new BaseAuthService(dbConnection);
         authService.start();
         server = new ServerSocket(PORT);
-
+        executorService = Executors.newFixedThreadPool(10);
     }
 
     public void startServer(){
@@ -41,7 +45,7 @@ public class MyServer {
                 System.out.println("Server wait is connected...");
                 Socket socket = server.accept();
                 System.out.println("Client connected!");
-                new ClientHandler(this, socket);
+                new ClientHandler(this, socket, executorService);
 
             }
         }catch (Exception e){
@@ -50,41 +54,56 @@ public class MyServer {
             if (authService != null){
                 authService.stop();
                 dbConnection.disconnect();
+                executorService.shutdown();
             }
         }
     }
 
-    public void addUser(String login, String password){
-        try {
-            User user = dbConnection.getUser(login, password);
-            users.add(user);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-
+    public void addUser(final String login, final String password){
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    User user = dbConnection.getUser(login, password);
+                    users.add(user);
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }
+        });
     }
 
-    public void createNewUser(String nick, String login, String password){
-        try {
-            dbConnection.addUser(login, password, nick);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+    public void createNewUser(final String nick, final String login, final String password){
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    dbConnection.addUser(login, password, nick);
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }
+        });
     }
 
-    public void updateListUsers(){
+    public synchronized void updateListUsers(){
         authService.updateClientsList();
     }
 
-    public void changeNickname(String login, String newNick){
-        try {
-            dbConnection.changeNick(login, newNick);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+    public void changeNickname(final String login, final String newNick){
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    dbConnection.changeNick(login, newNick);
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }
+        });
     }
 
-    public void deleteActiveUser(String nick){
+    public synchronized void deleteActiveUser(String nick){
         for (User o : users){
             if (o.getNick().equals(nick)){
                 users.remove(o);
@@ -92,8 +111,7 @@ public class MyServer {
         }
     }
 
-    public List<User> getUsersDataBase(){
-        //List<User> users = dbConnection.getAllUsers();
+    public synchronized List<User> getUsersDataBase(){
         return users;
     }
 
@@ -104,12 +122,6 @@ public class MyServer {
             }
         }
         return false;
-    }
-
-    public synchronized void sendActiveUsers(){
-//        for (ClientHandler o : clients){
-            clients.get(0).sendMessage(Commands.sendUsersCommand(users));
-
     }
 
     public synchronized void broadcastMessage(ClientHandler sender, Commands commands){
