@@ -46,7 +46,6 @@ public class MyServer {
                 Socket socket = server.accept();
                 System.out.println("Client connected!");
                 new ClientHandler(this, socket, executorService);
-
             }
         }catch (Exception e){
             System.out.println("Server error");
@@ -57,6 +56,7 @@ public class MyServer {
                 executorService.shutdown();
             }
         }
+
     }
 
     public void addUser(final String login, final String password){
