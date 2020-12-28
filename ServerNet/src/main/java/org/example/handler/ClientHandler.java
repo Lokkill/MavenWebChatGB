@@ -11,6 +11,9 @@ import org.example.service.AuthService;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 public class ClientHandler {
     private MyServer myServer;
@@ -18,33 +21,34 @@ public class ClientHandler {
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private String userName;
+    private static Logger logger;
 
     public String getUserName() {
         return userName;
     }
 
     public ClientHandler(MyServer myServer, Socket socket, ExecutorService executorService){
+        logger = LogManager.getLogManager().getLogger(String.valueOf(ClientHandler.class));
         try {
             this.myServer = myServer;
             this.socket = socket;
             this.in = new ObjectInputStream(socket.getInputStream());
             this.out = new ObjectOutputStream(socket.getOutputStream());
             this.userName = "";
-            executorService.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        authentication();
-                        readMessage();
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    } finally {
-                        closeConnection();
-                    }
+            executorService.execute(() -> {
+                try {
+                    authentication();
+                    readMessage();
+                }catch (Exception e){
+                    e.printStackTrace();
+                } finally {
+                    closeConnection();
                 }
             });
         } catch (Exception e){
+            logger.log(Level.INFO,"Ошибка авторизации пользователя");
             sendMessage(Commands.errorCommand("Ошибка авторизации пользователя"));
+
             //throw new RuntimeException("Client connection error");
         }
     }
@@ -82,6 +86,7 @@ public class ClientHandler {
             myServer.subscribe(this);
             return true;
         } else {
+            logger.log(Level.INFO, "Некорректные логин/пароль");
             sendMessage(Commands.authErrorCommand("Логин или пароль не соответствуют действительности"));
             return false;
         }
@@ -158,6 +163,7 @@ public class ClientHandler {
         try {
             return (Commands) in.readObject();
         } catch (ClassNotFoundException e) {
+            logger.log(Level.WARNING,"Получен неизвестный объект");
             String errorMessage = "Получен неизвестный объект";
             System.err.println(errorMessage);
             e.printStackTrace();

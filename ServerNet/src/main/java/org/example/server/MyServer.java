@@ -13,9 +13,11 @@ import java.net.Socket;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 public class MyServer {
     private final int PORT = 8189;
@@ -26,12 +28,14 @@ public class MyServer {
     private AuthService authService;
     private ServerSocket server;
     private static ExecutorService executorService;
+    private static Logger logger;
 
     public AuthService getAuthService(){
         return authService;
     }
 
     public MyServer() throws IOException {
+        logger = LogManager.getLogManager().getLogger(String.valueOf(MyServer.class));
         dbConnection = new DBConnection();
         authService = new BaseAuthService(dbConnection);
         authService.start();
@@ -45,9 +49,11 @@ public class MyServer {
                 System.out.println("Server wait is connected...");
                 Socket socket = server.accept();
                 System.out.println("Client connected!");
+                logger.log(Level.INFO, "Подключение нового пользователя");
                 new ClientHandler(this, socket, executorService);
             }
         }catch (Exception e){
+            logger.log(Level.WARNING, "Ошибка при подключении клиента");
             System.out.println("Server error");
         } finally {
             if (authService != null){
@@ -60,28 +66,23 @@ public class MyServer {
     }
 
     public void addUser(final String login, final String password){
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    User user = dbConnection.getUser(login, password);
-                    users.add(user);
-                } catch (SQLException throwables) {
-                    throwables.printStackTrace();
-                }
+        executorService.execute(() -> {
+            try {
+                User user = dbConnection.getUser(login, password);
+                users.add(user);
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
             }
         });
     }
 
     public void createNewUser(final String nick, final String login, final String password){
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    dbConnection.addUser(login, password, nick);
-                } catch (SQLException throwables) {
-                    throwables.printStackTrace();
-                }
+        executorService.execute(() -> {
+            try {
+                dbConnection.addUser(login, password, nick);
+            } catch (SQLException throwables) {
+                logger.log(Level.INFO, "Ошибка создания нового пользователя");
+                throwables.printStackTrace();
             }
         });
     }
@@ -91,14 +92,12 @@ public class MyServer {
     }
 
     public void changeNickname(final String login, final String newNick){
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    dbConnection.changeNick(login, newNick);
-                } catch (SQLException throwables) {
-                    throwables.printStackTrace();
-                }
+        executorService.execute(() -> {
+            try {
+                dbConnection.changeNick(login, newNick);
+            } catch (SQLException throwables) {
+                logger.log(Level.INFO, "Ошибка изменения никнейма");
+                throwables.printStackTrace();
             }
         });
     }
